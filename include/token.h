@@ -25,7 +25,7 @@ typedef struct
                     // 没有按照类型直接存double或者string，因为只识别序列，不计算含义
 } Token;
 
-Token *token_create(TokenType type, char *lexeme);
+Token *token_create(TokenType type, char *lexeme);      // 创建一个 Token，并复制传入的 lexeme，让 Token 获得所有权
 
 void token_free(Token *token);
 
