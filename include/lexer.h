@@ -6,7 +6,7 @@
 // opaque struct
 typedef struct Lexer Lexer;
 
-Lexer *lexer_create();      // 需要来源
+Lexer *lexer_create(const char *source);      // 需要来源
 
 Token *lexer_next(Lexer *lexer);
 

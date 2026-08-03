@@ -1,6 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#define MAX_LEXEME_LENGTH 1024
+
 typedef enum 
 {
     TOKEN_EOF,
