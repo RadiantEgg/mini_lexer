@@ -1,8 +1,10 @@
 .vscode
 
-build/
+build_release/
 
-test/
+build_debug/
+
+tests/
 
 *.o
 

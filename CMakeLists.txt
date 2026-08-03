@@ -10,36 +10,62 @@ message(STATUS "======================")
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-message(STATUS "C Standard: ${CMAKE_C_STANDARD}")
-
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
 
 message(STATUS "Build Type = ${CMAKE_BUILD_TYPE}")
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "Debug mode: ENABLE DEBUG LOG")
-else()
-    message(STATUS "Release mode: DISABLE DEBUG LOG")
-endif()
+# ---------------
+# directories
+# ---------------  
 
 set(INC_DIR include)
 set(SRC_DIR src)
+set(APP_DIR app)
+set(TESTS_DIR tests)
 
-message(STATUS "Include Dir: ${INC_DIR}")
-message(STATUS "Src Dir: ${SRC_DIR}")
 
-set(SOURCES
-    ${SRC_DIR}/main.c
+# ----------------
+# library
+# ----------------
+
+set(LIB_SOURCES
     ${SRC_DIR}/token.c
     ${SRC_DIR}/lexer.c
 )
 
-message(STATUS "Source Dir:")
-foreach(src ${SOURCES})
-    message(STATUS " -${src}")
-endforeach()
+add_library(mini_lexer_lib STATIC ${LIB_SOURCES})
 
-add_executable(mini_lexer ${SOURCES})
-target_include_directories(mini_lexer PUBLIC ${INC_DIR})
+target_include_directories(mini_lexer_lib
+    PUBLIC
+    ${INC_DIR}
+)
+
+
+# ----------------
+# main executable
+# ----------------
+
+add_executable(mini_lexer
+    ${APP_DIR}/main.c
+)
+
+target_link_libraries(mini_lexer
+    PRIVATE
+    mini_lexer_lib
+)
+
+
+# ----------------
+# tests
+# ----------------
+
+add_executable(test_token
+    ${TESTS_DIR}/test_token.c
+)
+
+target_link_libraries(test_token
+    PRIVATE
+    mini_lexer_lib
+)
