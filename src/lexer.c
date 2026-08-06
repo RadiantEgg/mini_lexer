@@ -8,8 +8,8 @@
 struct Lexer
 {
     const char *source;
-    size_t position;
-    char curr;
+    const char *start;    // Token 的起点
+    const char *current;     // 当前扫描字符
 };
 
 Lexer *lexer_create(const char *source)
@@ -19,8 +19,8 @@ Lexer *lexer_create(const char *source)
     // 错误处理...
 
     lexer->source = source;
-    lexer->position = 0;
-    lexer->curr = source[0];    // 合法，判断交给main
+    lexer->start = source;
+    lexer->current = source;    // 合法，判断交给main
 
     return lexer;
 }
@@ -31,57 +31,82 @@ void lexer_destroy(Lexer *lexer)
 }
 
 // 查看当前字符
-static char lexer_peek(Lexer *lexer)
+static int lexer_peek(Lexer *lexer)
 {
-    return lexer->curr;
+    return *lexer->current;
 }
 
 // 推进字符流：更改位置及当前字符
 static void lexer_advance(Lexer *lexer)
 {
-    lexer->position += 1;
-    lexer->curr = peek(lexer);
+    lexer->current++;
 }
 
 // 判断是否到达字符流末尾
 static int lexer_is_at_end(Lexer *lexer)
 {
-    return peek(lexer) == '\0';      // 文件的EOF先不考虑
+    return lexer_peek(lexer) == '\0';      // 文件的EOF先不考虑
 }
 
 // 跳过空白
 static void lexer_skip_whitespace(Lexer *lexer)
 {
-    while (isspace(peek(lexer)))
-        advance(lexer);
+    while (isspace(lexer_peek(lexer)))
+        lexer_advance(lexer);
 }
 
-static void read_identifier(Lexer *lexer, char *identifier)
+
+static int is_legal_identifier_char(int c)
 {
-    int i = 0;
-
-    while (i < MAX_LEXEME_LENGTH && !is_at_end(lexer)) {
-        identifier[i++] = lexer->curr;
-        advance(lexer);
-    }
-
-    if (i == MAX_LEXEME_LENGTH) {
-
-        // 错误处理...
-
-    } else {
-        identifier[i] = '\0';
-    }
+    return isalnum(c) || c == '_';
 }
 
-static void read_number(Lexer *lexer, char *identifier)
+// 第一个字符是字母或者下划线，后续可以是字母数字下划线
+static void scan_identifier(Lexer *lexer)
 {
+    // 反复扫描字符，合法推进，不合法停止
+    while (is_legal_identifier_char(lexer_peek(lexer)))
+        lexer_advance(lexer);
+}
 
+static void scan_number(Lexer *lexer)   // 开头为.或数字，中间是数字，结尾可以直接带.  || 考虑简单情况如 1.   .5  1.5 等等
+{
+    while (lexer_peek(lexer) != '.' && isdigit(lexer_peek(lexer))) 
+        lexer_advance(lexer);
+    
+    if (lexer_peek(lexer) == '.') {
+        lexer_advance(lexer);
+
+        while (isdigit(lexer_peek(lexer)))
+            lexer_advance(lexer);
+    }
 }
 
 Token *lexer_next(Lexer *lexer)
 {
+    Token *token = malloc(sizeof(Token));
+    // 错误处理...
+
     lexer_skip_whitespace(lexer);
+
+    lexer->current = lexer->start;
+
+    int c = lexer_peek(lexer);
+    
+    if (c == EOF)
+        return NULL;
+    
+    if (c == '_' || isalpha(c)) {
+        scan_identifier(lexer);
+        token = token_create(TOKEN_IDENTIFIER, lexer->start, lexer->current - lexer->start);
+        return token;
+    }
+
+    if (isdigit(c) || c == '.') {
+        scan_number(lexer);
+        token = token_create(TOKEN_NUMBER, lexer->start, lexer->current - lexer->start);
+        return token;
+    }
 
 }
 

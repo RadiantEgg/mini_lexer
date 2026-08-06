@@ -4,18 +4,20 @@
 
 #include "token.h"
 
-Token *token_create(TokenType type, const char *lexeme)
+Token *token_create(TokenType type, const char *start, size_t length)
 {
     Token *token = malloc(sizeof(Token));
     
     // 错误处理...
 
     token->type = type;
-    token->lexeme = malloc(strlen(lexeme) + 1);
+    token->lexeme = malloc(length + 1);
 
     // 错误处理...rollback
 
-    strcpy(token->lexeme, lexeme);
+    strncpy(token->lexeme, start, length);     // 工程上会用 memcpy 来代替strncpy
+
+    token->lexeme[length] = '\0';
 
     return token;
 }
