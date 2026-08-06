@@ -69,3 +69,12 @@ target_link_libraries(test_token
     PRIVATE
     mini_lexer_lib
 )
+
+add_executable(test_lexer
+    ${TESTS_DIR}/test_lexer.c
+)
+
+target_link_libraries(test_lexer
+    PRIVATE
+    mini_lexer_lib
+)

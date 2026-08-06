@@ -6,6 +6,8 @@ build_debug/
 
 tests/
 
+scripts/
+
 *.o
 
 *.exe

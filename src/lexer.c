@@ -31,7 +31,7 @@ void lexer_destroy(Lexer *lexer)
 }
 
 // 查看当前字符
-static int lexer_peek(Lexer *lexer)
+static char lexer_peek(Lexer *lexer)
 {
     return *lexer->current;
 }
@@ -89,11 +89,11 @@ Token *lexer_next(Lexer *lexer)
 
     lexer_skip_whitespace(lexer);
 
-    lexer->current = lexer->start;
+    lexer->start = lexer->current;
 
-    int c = lexer_peek(lexer);
+    char c = lexer_peek(lexer);
     
-    if (c == EOF)
+    if (lexer_is_at_end(lexer))
         return NULL;
     
     if (c == '_' || isalpha(c)) {

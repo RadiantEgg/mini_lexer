@@ -32,3 +32,7 @@ mini_lexer/
 - stdin来源
 - Token类型有限
 
+
+- source处理
+- Ctest
+- GitHub Action
