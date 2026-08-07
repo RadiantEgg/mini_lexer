@@ -11,21 +11,20 @@ Token *token_create(TokenType type, const char *start, size_t length)
     // 错误处理...
 
     token->type = type;
-    token->lexeme = malloc(length + 1);
+    token->start = start;
+    token->length = length;
 
-    // 错误处理...rollback
+    // // 错误处理...rollback
 
-    strncpy(token->lexeme, start, length);     // 工程上会用 memcpy 来代替strncpy
+    // strncpy(token->lexeme, start, length);     // 工程上会用 memcpy 来代替strncpy
 
-    token->lexeme[length] = '\0';
+    // token->lexeme[length] = '\0';
 
     return token;
 }
 
 void token_free(Token *token)
 {
-    free(token->lexeme);
-
     free(token);
 }
 
@@ -67,6 +66,5 @@ void token_print(const Token *token)    // print 只访问，readonly
 {
     printf("TokenType: %s\n", token_type_to_string(token->type));
 
-    if (token->type != TOKEN_EOF)
-        printf("TokenLexeme: %s\n", token->lexeme);
+    printf("TokenLexeme: %.*s\n", token->length,token->start);     // %*.s 输出字符串前*个字符,当EOF时候传入0，恰好不会创造字符串
 }
