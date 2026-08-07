@@ -5,7 +5,7 @@
 
 typedef enum 
 {
-    TOKEN_UNKNOWN,
+    TOKEN_ERROR,
     
     TOKEN_EOF,
 
@@ -34,9 +34,7 @@ typedef struct
 
 } Token;
 
-Token *token_create(TokenType type, const char *start, const size_t length, size_t line, size_t column);      // 创建一个 Token，利用token的start和长度信息，让 Token 获得所有权
-
-void token_free(Token *token);
+void token_init(Token *token, TokenType type, const char *start, const size_t length, size_t line, size_t column);      // 创建一个 Token，利用token的start和长度信息，让 Token 获得所有权
 
 void token_print(const Token *token);
 

@@ -8,7 +8,7 @@ typedef struct Lexer Lexer;
 
 Lexer *lexer_create(const char *source);      // 需要来源
 
-Token *lexer_next(Lexer *lexer);
+void lexer_next(Lexer *lexer, Token *token);
 
 void lexer_destroy(Lexer *lexer);
 

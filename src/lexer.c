@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -75,7 +76,7 @@ static int is_legal_identifier_char(int c)
     return isalnum(c) || c == '_';
 }
 
-// 第一个字符是字母或者下划线，后续可以是字母数字下划线
+// 按照标识符命名规范
 static void scan_identifier(Lexer *lexer)
 {
     // 反复扫描字符，合法推进，不合法停止
@@ -121,15 +122,13 @@ static TokenType lexer_scan_single_char(Lexer *lexer)
 
         // 错误处理...
         default:
-            return TOKEN_UNKNOWN;
+            lexer_advance(lexer);
+            return TOKEN_ERROR;
     }
 }
 
-Token *lexer_next(Lexer *lexer)
+void lexer_next(Lexer *lexer, Token *token)
 {
-    Token *token = malloc(sizeof(Token));
-    // 错误处理...
-
     lexer_skip_whitespace(lexer);
 
     lexer->start = lexer->current;
@@ -139,31 +138,33 @@ Token *lexer_next(Lexer *lexer)
     char c = lexer_peek(lexer);
     
     if (lexer_is_at_end(lexer)) {
-        token = token_create(TOKEN_EOF, lexer->start, 0, start_line, start_column);
-        return token;
+        token_init(token, TOKEN_EOF, lexer->start, 0, start_line, start_column);
+        return;
     }
     
     if (c == '_' || isalpha(c)) {
         scan_identifier(lexer);
-        token = token_create(TOKEN_IDENTIFIER, lexer->start, lexer->current - lexer->start, start_line, start_column);
-        return token;
+        token_init(token, TOKEN_IDENTIFIER, lexer->start, lexer->current - lexer->start, start_line, start_column);
+        return;
     }
 
     if (isdigit(c) || c == '.') {
         scan_number(lexer);
-        token = token_create(TOKEN_NUMBER, lexer->start, lexer->current - lexer->start, start_line, start_column);
-        return token;
+        token_init(token, TOKEN_NUMBER, lexer->start, lexer->current - lexer->start, start_line, start_column);
+        return;
     }
 
     // 假设剩下的是单字符
     TokenType type = lexer_scan_single_char(lexer);
 
-    if (type != TOKEN_UNKNOWN) {
-        token = token_create(type, lexer->start, 1, start_line, start_column);
-        return token;
+    if (type != TOKEN_ERROR) {
+        token_init(token, type, lexer->start, 1, start_line, start_column);
+        return;
     }
 
-    // 错误处理...
+    // error
+    token_init(token, type, lexer->start, 1, start_line, start_column);
+    return;
 }
 
 
