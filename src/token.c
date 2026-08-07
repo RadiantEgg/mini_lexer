@@ -4,7 +4,7 @@
 
 #include "token.h"
 
-Token *token_create(TokenType type, const char *start, size_t length)
+Token *token_create(TokenType type, const char *start, size_t length, size_t line, size_t column)
 {
     Token *token = malloc(sizeof(Token));
     
@@ -14,11 +14,8 @@ Token *token_create(TokenType type, const char *start, size_t length)
     token->start = start;
     token->length = length;
 
-    // // 错误处理...rollback
-
-    // strncpy(token->lexeme, start, length);     // 工程上会用 memcpy 来代替strncpy
-
-    // token->lexeme[length] = '\0';
+    token->line = line;
+    token->column = column;
 
     return token;
 }
@@ -64,7 +61,10 @@ static const char *token_type_to_string(TokenType type)
 
 void token_print(const Token *token)    // print 只访问，readonly
 {
-    printf("TokenType: %s\n", token_type_to_string(token->type));
-
-    printf("TokenLexeme: %.*s\n", token->length,token->start);     // %*.s 输出字符串前*个字符,当EOF时候传入0，恰好不会创造字符串
+    printf("line: %3zu, column: %3zu: ", token->line, token->column);
+    printf("TokenType: %-12s\t", token_type_to_string(token->type));
+    if (token->type != TOKEN_EOF)
+        printf("TokenLexeme: %.*s\n", token->length,token->start);     // %*.s 输出字符串前*个字符,当EOF时候传入0，恰好不会创造字符串
+    else 
+        printf("\n");
 }

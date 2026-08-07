@@ -8,8 +8,12 @@
 struct Lexer
 {
     const char *source;
+
     const char *start;    // Token 的起点
     const char *current;     // 当前扫描字符
+
+    size_t line;
+    size_t column;
 };
 
 Lexer *lexer_create(const char *source)
@@ -22,6 +26,8 @@ Lexer *lexer_create(const char *source)
     lexer->start = source;
     lexer->current = source;    // 合法，判断交给main
 
+    lexer->line = 1;
+    lexer->column = 1;
     return lexer;
 }
 
@@ -37,8 +43,16 @@ static char lexer_peek(Lexer *lexer)
 }
 
 // 推进字符流：更改位置及当前字符
+// 所有针对字符流变化的操作都经由advance(),统一update lexer的接口
 static void lexer_advance(Lexer *lexer)
-{
+{    
+    if (lexer_peek(lexer) == '\n') {
+        lexer->line++;
+        lexer->column = 1;
+    } else {
+        lexer->column++;
+    }
+
     lexer->current++;
 }
 
@@ -119,23 +133,25 @@ Token *lexer_next(Lexer *lexer)
     lexer_skip_whitespace(lexer);
 
     lexer->start = lexer->current;
+    size_t start_line = lexer->line;
+    size_t start_column = lexer->column;
 
     char c = lexer_peek(lexer);
     
     if (lexer_is_at_end(lexer)) {
-        token = token_create(TOKEN_EOF, lexer->start, 0);
+        token = token_create(TOKEN_EOF, lexer->start, 0, start_line, start_column);
         return token;
     }
     
     if (c == '_' || isalpha(c)) {
         scan_identifier(lexer);
-        token = token_create(TOKEN_IDENTIFIER, lexer->start, lexer->current - lexer->start);
+        token = token_create(TOKEN_IDENTIFIER, lexer->start, lexer->current - lexer->start, start_line, start_column);
         return token;
     }
 
     if (isdigit(c) || c == '.') {
         scan_number(lexer);
-        token = token_create(TOKEN_NUMBER, lexer->start, lexer->current - lexer->start);
+        token = token_create(TOKEN_NUMBER, lexer->start, lexer->current - lexer->start, start_line, start_column);
         return token;
     }
 
@@ -143,7 +159,7 @@ Token *lexer_next(Lexer *lexer)
     TokenType type = lexer_scan_single_char(lexer);
 
     if (type != TOKEN_UNKNOWN) {
-        token = token_create(type, lexer->start, 1);
+        token = token_create(type, lexer->start, 1, start_line, start_column);
         return token;
     }
 
