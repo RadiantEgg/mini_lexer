@@ -82,6 +82,35 @@ static void scan_number(Lexer *lexer)   // 开头为.或数字，中间是数字
     }
 }
 
+static TokenType lexer_scan_single_char(Lexer *lexer)
+{
+    switch(lexer_peek(lexer)) 
+    {
+        case '+':
+            lexer_advance(lexer);
+            return TOKEN_PLUS;
+        case '-':
+            lexer_advance(lexer);
+            return TOKEN_MINUS;
+        case '*':
+            lexer_advance(lexer);
+            return TOKEN_STAR;
+        case '/':
+            lexer_advance(lexer);
+            return TOKEN_SLASH;
+        case '(':
+            lexer_advance(lexer);
+            return TOKEN_LPAREN;
+        case ')':
+            lexer_advance(lexer);
+            return TOKEN_RPAREN;
+
+        // 错误处理...
+        default:
+            return TOKEN_UNKNOWN;
+    }
+}
+
 Token *lexer_next(Lexer *lexer)
 {
     Token *token = malloc(sizeof(Token));
@@ -93,8 +122,10 @@ Token *lexer_next(Lexer *lexer)
 
     char c = lexer_peek(lexer);
     
-    if (lexer_is_at_end(lexer))
-        return NULL;
+    if (lexer_is_at_end(lexer)) {
+        token = token_create(TOKEN_EOF, lexer->start, 0);
+        return token;
+    }
     
     if (c == '_' || isalpha(c)) {
         scan_identifier(lexer);
@@ -108,6 +139,15 @@ Token *lexer_next(Lexer *lexer)
         return token;
     }
 
+    // 假设剩下的是单字符
+    TokenType type = lexer_scan_single_char(lexer);
+
+    if (type != TOKEN_UNKNOWN) {
+        token = token_create(type, lexer->start, 1);
+        return token;
+    }
+
+    // 错误处理...
 }
 
 

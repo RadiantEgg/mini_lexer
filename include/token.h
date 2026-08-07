@@ -5,6 +5,8 @@
 
 typedef enum 
 {
+    TOKEN_UNKNOWN,
+    
     TOKEN_EOF,
 
     TOKEN_IDENTIFIER,

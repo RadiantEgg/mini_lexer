@@ -66,5 +66,7 @@ static const char *token_type_to_string(TokenType type)
 void token_print(const Token *token)    // print 只访问，readonly
 {
     printf("TokenType: %s\n", token_type_to_string(token->type));
-    printf("TokenLexeme: %s\n", token->lexeme);
+
+    if (token->type != TOKEN_EOF)
+        printf("TokenLexeme: %s\n", token->lexeme);
 }
